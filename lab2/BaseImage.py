@@ -59,7 +59,10 @@ class BaseImage:
                 value[i, j] = max_value[i, j] / 255
 
                 if g[i, j] >= b[i, j]:
-                    hue[i, j] = int16(acos((int(r[i, j]) - int(g[i, j])/2 - int(b[i, j])/2) / sqrt(int(r[i, j])**2 + int(g[i, j])**2 + int(b[i, j])**2 - int(r[i, j])*int(g[i, j]) - int(r[i, j])*int(b[i, j]) - int(g[i, j])*int(b[i, j]) )) * 180/pi) 
+                    try:
+                        hue[i, j] = int16(acos((int(r[i, j]) - int(g[i, j])/2 - int(b[i, j])/2) / sqrt(int(r[i, j])**2 + int(g[i, j])**2 + int(b[i, j])**2 - int(r[i, j])*int(g[i, j]) - int(r[i, j])*int(b[i, j]) - int(g[i, j])*int(b[i, j]) )) * 180/pi)
+                    except ZeroDivisionError:
+                        hue[i, j] = 0
                 else: 
                     hue[i, j] = int16(360 - acos((int(r[i, j]) - int(g[i, j])/2 - int(b[i, j])/2) / sqrt(int(r[i, j])**2 + int(g[i, j])**2 + int(b[i, j])**2 - int(r[i, j])*int(g[i, j]) - int(r[i, j])*int(b[i, j]) - int(g[i, j])*int(b[i, j]) )) * 180/pi)
                 
@@ -89,9 +92,12 @@ class BaseImage:
             for j in range(columns):
 
                 if g[i, j] >= b[i, j]:
-                    hue[i, j] = acos(( 0.5 * ((r[i][j] - g[i][j]) + (r[i][j] - b[i][j])) / sqrt((r[i][j] - g[i][j]) ** 2 + ((r[i][j] - b[i][j]) * (g[i][j] - b[i][j]))))) * 180/pi
+                    try:
+                        hue[i, j] = int16(acos((int(r[i, j]) - int(g[i, j])/2 - int(b[i, j])/2) / sqrt(int(r[i, j])**2 + int(g[i, j])**2 + int(b[i, j])**2 - int(r[i, j])*int(g[i, j]) - int(r[i, j])*int(b[i, j]) - int(g[i, j])*int(b[i, j]) )) * 180/pi)
+                    except ZeroDivisionError:
+                        hue[i, j] = 0
                 else: 
-                    hue[i, j] = 360 - acos(( 0.5 * ((r[i][j] - g[i][j]) + (r[i][j] - b[i][j])) / sqrt((r[i][j] - g[i][j]) ** 2 + ((r[i][j] - b[i][j]) * (g[i][j] - b[i][j]))))) * 180/pi
+                    hue[i, j] = int16(360 - acos((int(r[i, j]) - int(g[i, j])/2 - int(b[i, j])/2) / sqrt(int(r[i, j])**2 + int(g[i, j])**2 + int(b[i, j])**2 - int(r[i, j])*int(g[i, j]) - int(r[i, j])*int(b[i, j]) - int(g[i, j])*int(b[i, j]) )) * 180/pi)
                 
                 intensity[i, j] = ((r[i, j] + g[i, j] + b[i, j]) / 3.0)  #/ 255.0
                 
@@ -125,7 +131,10 @@ class BaseImage:
                 d[i, j] = (max_value[i, j] - min_value[i, j]) / 255
 
                 if g[i, j] >= b[i, j]:
-                    hue[i, j] = acos((int(r[i, j]) - int(g[i, j])/2 - int(b[i, j])/2) / sqrt(int(r[i, j])**2 + int(g[i, j])**2 + int(b[i, j])**2 - int(r[i, j])*int(g[i, j]) - int(r[i, j])*int(b[i, j]) - int(g[i, j])*int(b[i, j]) )) * 180/pi 
+                    try:
+                        hue[i, j] = acos((int(r[i, j]) - int(g[i, j])/2 - int(b[i, j])/2) / sqrt(int(r[i, j])**2 + int(g[i, j])**2 + int(b[i, j])**2 - int(r[i, j])*int(g[i, j]) - int(r[i, j])*int(b[i, j]) - int(g[i, j])*int(b[i, j]) )) * 180/pi
+                    except ZeroDivisionError:
+                        hue[i, j] = 0     
                 else: 
                     hue[i, j] = 360 - acos((int(r[i, j]) - int(g[i, j])/2 - int(b[i, j])/2) / sqrt(int(r[i, j])**2 + int(g[i, j])**2 + int(b[i, j])**2 - int(r[i, j])*int(g[i, j]) - int(r[i, j])*int(b[i, j]) - int(g[i, j])*int(b[i, j]) )) * 180/pi
                 
@@ -141,25 +150,23 @@ class BaseImage:
         return self
 
     def to_rgb(self) -> 'BaseImage':
+        rows = self.data.shape[0]
+        columns = self.data.shape[1]
+        r = zeros((rows, columns))
+        g = zeros((rows, columns))
+        b = zeros((rows, columns))
+
         match self.color_model:
             case 0:
 
                 return self
 
             case 1:
-
                 h, s, v = squeeze(dsplit(self.data, self.data.shape[-1]))
 
                 max_value = v * 255
-
-                rows = self.data.shape[0]
-                columns = self.data.shape[1]
-
                 min_value = zeros((rows, columns))
                 z = zeros((rows, columns))
-                r = zeros((rows, columns))
-                g = zeros((rows, columns))
-                b = zeros((rows, columns))
 
                 for i in range(rows):
                     for j in range(columns):
@@ -190,63 +197,43 @@ class BaseImage:
                             g[i, j] = int(min_value[i, j])
                             b[i, j] = int(z[i, j] + min_value[i ,j])
 
-                self.data = dstack((r, g, b)).astype('uint8')
-                self.color_model = 0
-                return self
-
             case 2:
-                H, S, I = np.squeeze(np.dsplit(self.data, self.data.shape[-1]))
-
-                rows = self.data.shape[0]
-                columns = self.data.shape[1]
-
-                R = np.zeros((rows, columns))
-                G = np.zeros((rows, columns))
-                B = np.zeros((rows, columns))
+                h, s, intensity = np.squeeze(np.dsplit(self.data, self.data.shape[-1]))
 
                 for i in range(rows):
                     for j in range(columns):
 
-                        if B[i, j] == G[i, j] == R[i, j]:
-                            H[i, j] = 0
+                        if b[i, j] == g[i, j] == r[i, j]:
+                            h[i, j] = 0
                     
-                        if H[i, j] == 0:
-                            R[i, j] = I[i, j] + 2*(I[i, j] * S[i, j])
-                            G[i, j] = I[i, j] - I[i, j] * S[i, j]
-                            B[i, j] = I[i, j] - I[i, j] * S[i, j]
+                        if h[i, j] == 0:
+                            r[i, j] = int(intensity[i, j] + 2*(intensity[i, j] * s[i, j]))
+                            g[i, j] = int(intensity[i, j] - intensity[i, j] * s[i, j])
+                            b[i, j] = int(intensity[i, j] - intensity[i, j] * s[i, j])
 
-                        if 0 <= H[i, j] <= 120:
-                            B[i, j] = I[i, j] * (1 - S[i, j])
-                            R[i, j] = I[i, j] * (1 + (S[i, j] * cos(radians(H[i, j]))) / cos(radians(60) - radians(H[i, j])))
-                            G[i, j] = 3 * I[i, j] - (R[i, j] + B[i, j])
+                        if 0 < h[i, j] < 120:
+                            b[i, j] = int(intensity[i, j] * (1 - s[i, j]))
+                            r[i, j] = int(intensity[i, j] * (1 + (s[i, j] * cos(radians(h[i, j]))) / cos(radians(60) - radians(h[i, j]))))
+                            g[i, j] = int(3 * intensity[i, j] - (r[i, j] + b[i, j]))
 
-                        if 120 < H[i, j] <= 240 or H[i, j] == 120:
-                            R[i, j] = I[i, j] * (1 - S[i, j])
-                            G[i, j] = I[i, j] * (1 + (S[i, j] * cos(radians(H[i, j]))) / cos(np.radians(60) - radians(H[i, j])))
-                            B[i, j] = 3 * I[i, j] - (R[i, j] + G[i, j])
+                        if 120 < h[i, j] <= 240 or h[i, j] == 120:
+                            r[i, j] = int(intensity[i, j] * (1 - s[i, j]))
+                            g[i, j] = int(intensity[i, j] * (1 + (s[i, j] * cos(radians(h[i, j]))) / cos(np.radians(60) - radians(h[i, j]))))
+                            b[i, j] = int(3 * intensity[i, j] - (r[i, j] + g[i, j]))
 
-                        if 240 < H[i, j] <= 360 or H[i, j] == 240:
-                            G[i, j] = I[i, j] * (1 - S[i, j])
-                            B[i, j] = I[i, j] * (1 + (S[i, j] * cos(radians(H[i, j]))) / cos(radians(60) - radians(H[i, j])))
-                            R[i, j] = 3 * I[i, j] - (G[i, j] + B[i, j])
+                        if 240 < h[i, j] <= 360 or h[i, j] == 240:
+                            g[i, j] = int(intensity[i, j] * (1 - s[i, j]))
+                            b[i, j] = int(intensity[i, j] * (1 + (s[i, j] * cos(radians(h[i, j]))) / cos(radians(60) - radians(h[i, j]))))
+                            r[i, j] = int(3 * intensity[i, j] - (g[i, j] + b[i, j]))
 
-                        elif R[i, j] > 255:
-                            R[i, j] = 255
-
-                self.data = dstack((R, G, B)).astype('uint16')
-                self.color_model = 0
-                return self
+                        elif r[i, j] > 255:
+                            r[i, j] = 255
 
             case 3:
                 h, s, l = squeeze(dsplit(self.data, self.data.shape[-1]))
-                rows = self.data.shape[0]
-                columns = self.data.shape[1]
                 min_value = zeros((rows, columns))
                 d = zeros((rows, columns))
                 x = zeros((rows, columns))
-                r = zeros((rows, columns))
-                g = zeros((rows, columns))
-                b = zeros((rows, columns))
                 for i in range(rows):
                     for j in range(columns):
                         d[i, j] = s[i, j] * (1 - abs((2*l[i, j] - 1)))
@@ -277,8 +264,8 @@ class BaseImage:
                             g[i, j] = int(min_value[i, j])
                             b[i, j] = int(255 * x[i, j] + min_value[i, j])
 
-                self.data = dstack((r, g, b)).astype('uint16')
-                self.color_model = 0
-                return self
+        self.data = dstack((r, g, b)).astype('uint8')
+        self.color_model = 0
+        return self
 
 
