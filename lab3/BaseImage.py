@@ -238,6 +238,38 @@ class BaseImage:
                         elif R[i, j] > 255:
                             R[i, j] = 255
 
+                # hue, saturation, intensity = squeeze(dsplit(self.data, self.data.shape[-1]))
+
+                # rows = self.data.shape[0]
+                # columns = self.data.shape[1]
+
+                # r = np.zeros((self.data.shape[0], self.data.shape[1]))
+                # g = np.zeros((self.data.shape[0], self.data.shape[1]))
+                # b = np.zeros((self.data.shape[0],self.data.shape[1]))
+
+                # for i in range(rows, columns):
+                #     for j in range(rows, columns):
+
+                #         if b[i, j] == g[i, j] == r[i, j]:
+                #             hue[i, j] = 0
+
+                #         if 0 <= hue[i, j] <= 120:
+                #             b[i, j] = intensity[i, j] * (1 - saturation[i, j])
+                #             r[i, j] = intensity[i, j] * (1 + (saturation[i, j] * cos(radians(hue[i, j]))) / cos(radians(60) - radians(hue[i, j])))
+                #             g[i, j] = 3 * intensity[i, j] - (r[i, j] + b[i, j])
+
+                #         if 120 < hue[i, j] <= 240:
+                #             hue[i, j] -= 120
+                #             r[i, j] = intensity[i, j] * (1 - saturation[i, j])
+                #             g[i, j] = intensity[i, j] * (1 + (saturation[i, j] * cos(radians(hue[i, j]))) / cos(radians(60) - radians(hue[i, j])))
+                #             b[i, j] = 3 * intensity[i, j] - (r[i, j] + g[i, j])
+
+                #         if 0 < hue[i, j] <= 360:
+                #             hue[i, j] -= 240
+                #             g[i, j] = intensity[i, j] * (1 - saturation[i, j])
+                #             b[i, j] = intensity[i, j] * (1 + (saturation[i, j] * cos(radians(hue[i, j]))) / cos(radians(60) - radians(hue[i, j])))
+                #             r[i, j] = 3 * intensity[i, j] - (g[i, j] + b[i, j])
+
                 self.data = dstack((R, G, B)).astype('uint16')
                 self.color_model = 0
                 return self
