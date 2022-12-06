@@ -9,18 +9,23 @@ class Histogram:
 
     def __init__(self, values: np.ndarray) -> None:
         if values.shape[-1] == 3:
-            r = np.histogram(values[:, :, 0], bins = np.linspace(0, 255, 255))
-            g = np.histogram(values[:, :, 1], bins = np.linspace(0, 255, 255))
-            b = np.histogram(values[:, :, 2], bins = np.linspace(0, 255, 255))
-            self.values = r + g + b
+            r = np.histogram(values[:, :, 0], bins = np.linspace(0, 255, 256))
+            g = np.histogram(values[:, :, 1], bins = np.linspace(0, 255, 256))
+            b = np.histogram(values[:, :, 2], bins = np.linspace(0, 255, 256))
+            self.values = list(r + g + b)
         else: 
-            self.values = list(np.histogram(values, bins = np.linspace(0, 255, 255)))
+            self.values = list(np.histogram(values, bins = np.linspace(0, 255, 256)))
 
     def to_cumulated(self) -> 'Histogram':
         """
         metoda zwracajaca histogram skumulowany na podstawie stanu wewnetrznego obiektu
         """
-        self.values[0] = list(np.cumsum(self.values[0]))
+        if len(self.values) == 6:
+            self.values[0] = list(np.cumsum(self.values[0]))
+            self.values[2] = list(np.cumsum(self.values[2]))
+            self.values[4] = list(np.cumsum(self.values[4]))
+        else:
+            self.values[0] = list(np.cumsum(self.values[0]))
         return self
 
 

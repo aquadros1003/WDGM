@@ -18,7 +18,7 @@ class GrayScaleTransform(BaseImage):
         gray = np.zeros((rows, cols))
         for i in range(rows):
             for j in range(cols):
-                gray[i][j] = (r[i][j] + g[i, j] + b[i, j])
+                gray[i][j] = (r[i][j] + g[i, j] + b[i, j]).astype('uint8')
         return gray
 
     def to_gray(self) -> BaseImage:
